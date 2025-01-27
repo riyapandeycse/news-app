@@ -1,6 +1,5 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./card.css";
-
 
 type Post = {
   id: number;
@@ -9,7 +8,7 @@ type Post = {
 };
 
 const Card = () => {
-  const [posts, setPosts] = useState<Post[]>([]); 
+  const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +16,9 @@ const Card = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=2`);
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=2`
+      );
       const data: Post[] = await response.json(); // Parse JSON response
       setPosts((prevPosts) => [...prevPosts, ...data]); 
     } catch (error) {
@@ -27,9 +28,25 @@ const Card = () => {
     }
   };
 
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop >=
+      document.documentElement.offsetHeight - 10
+    ) {
+      setPage((prev) => prev + 1); // Load the next page
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
   }, [page]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);""
 
   return (
     <div>
@@ -40,7 +57,6 @@ const Card = () => {
         </div>
       ))}
       {loading && <p>Loading...</p>}
-      <button onClick={() => setPage((prev) => prev + 1)}>Load More</button>
     </div>
   );
 };
